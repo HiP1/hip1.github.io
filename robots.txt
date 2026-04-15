@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://hip1.github.io/sitemap.xml
