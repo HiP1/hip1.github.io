@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HiP (Ivan Phan) — AI Safety Research</title>
-    <meta name="description" content="Independent AI safety research by HiP (Ivan Phan). The Confidence Curriculum and Training Landscape series, plus standalone papers on memory architecture and prompt injection. Published under CC BY 4.0.">
+    <title>Ivan Phan (HiP) · AI Safety Research</title>
+    <meta name="description" content="Independent AI safety research by Ivan Phan (HiP). The Confidence Curriculum and Training Landscape series, plus standalone papers on memory architecture and prompt injection. Published under CC BY 4.0.">
     <meta name="author" content="Ivan Phan">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://hip1.github.io/">
@@ -16,67 +16,678 @@
       gtag('js', new Date());
       gtag('config', 'G-VXS3WNXN0L');
     </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;450;500;600&display=swap" rel="stylesheet">
+
     <style>
-        body {
-            font-family: Georgia, 'Times New Roman', serif;
-            max-width: 720px;
-            margin: 2rem auto;
-            padding: 0 1.5rem;
-            line-height: 1.6;
-            color: #1a1a1a;
+        :root {
+            --bg:        oklch(0.985 0.004 85);
+            --bg-sunk:   oklch(0.968 0.005 85);
+            --paper:     oklch(0.998 0.002 85);
+            --ink:       oklch(0.245 0.012 70);
+            --ink-soft:  oklch(0.42 0.012 70);
+            --muted:     oklch(0.56 0.012 75);
+            --faint:     oklch(0.7 0.01 80);
+            --line:      oklch(0.9 0.006 80);
+            --line-soft: oklch(0.94 0.005 80);
+            --accent:    oklch(0.5 0.072 215);
+            --accent-soft: oklch(0.5 0.072 215 / 0.1);
+            --accent-line: oklch(0.5 0.072 215 / 0.28);
+
+            --serif: "Newsreader", Georgia, serif;
+            --sans:  "IBM Plex Sans", system-ui, sans-serif;
+            --mono:  "IBM Plex Mono", ui-monospace, monospace;
         }
-        h1 { font-size: 1.6rem; margin-bottom: 0.3rem; }
-        h2 { font-size: 1.2rem; margin-top: 2rem; margin-bottom: 0.8rem; }
-        a { color: #1a5276; }
-        .subtitle { color: #555; font-size: 0.95rem; margin-bottom: 2rem; }
-        ul { padding-left: 1.2rem; }
-        li { margin-bottom: 0.6rem; }
-        .meta { color: #777; font-size: 0.85rem; margin-top: 3rem; }
+        html[data-theme="dark"] {
+            --bg:        oklch(0.205 0.008 250);
+            --bg-sunk:   oklch(0.235 0.009 250);
+            --paper:     oklch(0.245 0.009 250);
+            --ink:       oklch(0.93 0.008 80);
+            --ink-soft:  oklch(0.78 0.01 80);
+            --muted:     oklch(0.62 0.012 80);
+            --faint:     oklch(0.5 0.012 250);
+            --line:      oklch(0.34 0.012 250);
+            --line-soft: oklch(0.29 0.01 250);
+            --accent:    oklch(0.72 0.09 210);
+            --accent-soft: oklch(0.72 0.09 210 / 0.14);
+            --accent-line: oklch(0.72 0.09 210 / 0.4);
+        }
+
+        * { box-sizing: border-box; }
+        html { -webkit-text-size-adjust: 100%; }
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--ink);
+            font-family: var(--sans);
+            font-size: 17px;
+            line-height: 1.65;
+            -webkit-font-smoothing: antialiased;
+            text-rendering: optimizeLegibility;
+            transition: background 0.35s ease, color 0.35s ease;
+        }
+        a { color: inherit; text-decoration: none; }
+
+        .wrap {
+            max-width: 940px;
+            margin: 0 auto;
+            padding: 0 40px;
+        }
+
+        /* ── Kicker / mono labels ───────────────────────── */
+        .kicker {
+            font-family: var(--mono);
+            font-size: 11.5px;
+            font-weight: 500;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--accent);
+        }
+        .label {
+            font-family: var(--mono);
+            font-size: 11px;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--faint);
+        }
+
+        /* ── Top bar ────────────────────────────────────── */
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            backdrop-filter: saturate(1.4) blur(10px);
+            background: color-mix(in oklab, var(--bg) 82%, transparent);
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.3s ease, background 0.3s ease;
+        }
+        .topbar.scrolled { border-bottom-color: var(--line); }
+        .topbar .wrap {
+            height: 58px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .brand {
+            font-family: var(--mono);
+            font-size: 13px;
+            letter-spacing: 0.04em;
+            color: var(--ink);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+        .brand .dot {
+            width: 7px; height: 7px; border-radius: 50%;
+            background: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-soft);
+        }
+        .topnav {
+            display: flex;
+            align-items: center;
+            gap: 26px;
+        }
+        .topnav a {
+            font-family: var(--mono);
+            font-size: 11.5px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--muted);
+            transition: color 0.18s ease;
+        }
+        .topnav a:hover { color: var(--ink); }
+        .theme-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 34px; height: 34px;
+            border: 1px solid var(--line);
+            border-radius: 50%;
+            background: var(--paper);
+            color: var(--ink-soft);
+            cursor: pointer;
+            transition: border-color 0.18s, color 0.18s, transform 0.18s;
+        }
+        .theme-btn:hover { border-color: var(--faint); color: var(--ink); transform: rotate(-18deg); }
+        .theme-btn svg { width: 16px; height: 16px; }
+        @media (max-width: 680px) { .topnav a.nav-link { display: none; } }
+
+        /* ── Hero ───────────────────────────────────────── */
+        .hero { padding: 72px 0 8px; }
+        .hero .status {
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            font-family: var(--mono);
+            font-size: 11.5px;
+            letter-spacing: 0.13em;
+            text-transform: uppercase;
+            color: var(--ink-soft);
+            border: 1px solid var(--line);
+            background: var(--paper);
+            padding: 7px 14px 7px 11px;
+            border-radius: 100px;
+            margin-bottom: 30px;
+        }
+        .hero .status .pulse {
+            position: relative;
+            width: 8px; height: 8px;
+        }
+        .hero .status .pulse::before,
+        .hero .status .pulse::after {
+            content: ""; position: absolute; inset: 0;
+            border-radius: 50%; background: var(--accent);
+        }
+        .hero .status .pulse::after { animation: ping 2.6s cubic-bezier(0,0,0.2,1) infinite; }
+        @keyframes ping { 0% { transform: scale(1); opacity: 0.55; } 70%,100% { transform: scale(2.6); opacity: 0; } }
+        @media (prefers-reduced-motion: reduce) { .hero .status .pulse::after { animation: none; } }
+
+        .hero h1 {
+            font-family: var(--serif);
+            font-weight: 500;
+            font-size: clamp(48px, 8vw, 84px);
+            line-height: 1.0;
+            letter-spacing: -0.02em;
+            margin: 0;
+            color: var(--ink);
+        }
+        .hero h1 .alias {
+            font-style: italic;
+            font-weight: 400;
+            color: var(--muted);
+            font-size: 0.46em;
+            letter-spacing: -0.01em;
+            margin-left: 0.35em;
+            vertical-align: 0.18em;
+        }
+        .hero .role {
+            margin: 22px 0 0;
+            font-family: var(--serif);
+            font-size: clamp(20px, 2.6vw, 26px);
+            line-height: 1.35;
+            font-weight: 400;
+            color: var(--ink-soft);
+            max-width: 30ch;
+        }
+        .hero .role em { font-style: italic; color: var(--accent); }
+
+        .intro-grid {
+            display: grid;
+            grid-template-columns: 1.55fr 1fr;
+            gap: 56px;
+            margin-top: 46px;
+            padding-top: 38px;
+            border-top: 1px solid var(--line);
+        }
+        @media (max-width: 720px) { .intro-grid { grid-template-columns: 1fr; gap: 34px; } }
+        .bio p { margin: 0 0 16px; color: var(--ink-soft); max-width: 54ch; }
+        .bio p:last-child { margin-bottom: 0; }
+        .bio strong { color: var(--ink); font-weight: 600; }
+
+        .meta-col { display: flex; flex-direction: column; gap: 22px; }
+        .meta-block .label { display: block; margin-bottom: 9px; }
+        .linklist { display: flex; flex-direction: column; gap: 2px; }
+        .linklist a {
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+            padding: 6px 0;
+            color: var(--ink);
+            border-bottom: 1px solid transparent;
+            transition: color 0.16s;
+        }
+        .linklist a:hover { color: var(--accent); }
+        .linklist a .arr {
+            font-family: var(--mono);
+            color: var(--faint);
+            font-size: 12px;
+            transition: transform 0.16s, color 0.16s;
+        }
+        .linklist a:hover .arr { color: var(--accent); transform: translate(2px,-2px); }
+        .linklist a .sub { font-family: var(--mono); font-size: 11px; color: var(--faint); margin-left: auto; }
+
+        /* ── Section scaffolding ────────────────────────── */
+        section.block { padding: 64px 0; border-top: 1px solid var(--line); }
+        .sec-head { margin-bottom: 34px; }
+        .sec-head .kicker { display: block; margin-bottom: 14px; }
+        .sec-head h2 {
+            font-family: var(--serif);
+            font-weight: 500;
+            font-size: clamp(28px, 4vw, 40px);
+            line-height: 1.1;
+            letter-spacing: -0.015em;
+            margin: 0;
+            color: var(--ink);
+        }
+        .sec-head .desc {
+            margin: 16px 0 0;
+            color: var(--ink-soft);
+            max-width: 62ch;
+            font-size: 16.5px;
+        }
+        .sec-head .desc em { font-style: italic; color: var(--ink); }
+
+        /* ── Essay / statement ──────────────────────────── */
+        .essay { max-width: 66ch; }
+        .essay .kicker { display: block; margin-bottom: 24px; }
+        .essay .lead {
+            font-family: var(--serif);
+            font-weight: 400;
+            font-size: clamp(21px, 2.7vw, 27px);
+            line-height: 1.46;
+            letter-spacing: -0.01em;
+            color: var(--ink);
+            margin: 0 0 30px;
+        }
+        .essay .lead .q { font-style: italic; color: var(--accent); }
+        .essay p { margin: 0 0 18px; color: var(--ink-soft); }
+        .essay p:last-child { margin-bottom: 0; }
+        .essay .series-name { color: var(--ink); font-weight: 500; }
+
+        /* ── Contents list (journal TOC) ────────────────── */
+        .contents { display: flex; flex-direction: column; }
+        .entry {
+            display: grid;
+            grid-template-columns: 56px 1fr auto;
+            align-items: baseline;
+            gap: 4px 20px;
+            padding: 17px 14px;
+            margin: 0 -14px;
+            border-radius: 10px;
+            border-bottom: 1px solid var(--line-soft);
+            position: relative;
+            transition: background 0.18s ease;
+        }
+        .entry:last-child { border-bottom: 0; }
+        .entry:hover { background: var(--bg-sunk); }
+        .entry .idx {
+            font-family: var(--mono);
+            font-size: 12px;
+            color: var(--faint);
+            letter-spacing: 0.04em;
+            padding-top: 2px;
+        }
+        .entry:hover .idx { color: var(--accent); }
+        .entry .body { min-width: 0; }
+        .entry .ttl {
+            font-family: var(--serif);
+            font-size: 21px;
+            font-weight: 500;
+            line-height: 1.25;
+            color: var(--ink);
+            letter-spacing: -0.005em;
+            display: inline;
+            background-image: linear-gradient(var(--accent-line), var(--accent-line));
+            background-size: 0% 1px;
+            background-position: 0 1.08em;
+            background-repeat: no-repeat;
+            transition: background-size 0.3s ease;
+        }
+        .entry:hover .ttl { background-size: 100% 1px; }
+        .entry .dsc {
+            margin: 5px 0 0;
+            color: var(--muted);
+            font-size: 14.5px;
+            line-height: 1.5;
+            max-width: 64ch;
+        }
+        .entry .tag {
+            font-family: var(--mono);
+            font-size: 10.5px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--faint);
+            white-space: nowrap;
+            padding-top: 4px;
+        }
+        .entry .go {
+            font-family: var(--mono);
+            font-size: 13px;
+            color: var(--faint);
+            opacity: 0;
+            transform: translateX(-4px);
+            transition: opacity 0.18s, transform 0.18s, color 0.18s;
+            align-self: center;
+        }
+        .entry:hover .go { opacity: 1; transform: translateX(0); color: var(--accent); }
+        @media (max-width: 600px) {
+            .entry { grid-template-columns: 34px 1fr; }
+            .entry .tag, .entry .go { display: none; }
+        }
+
+        .entry.lead {
+            grid-template-columns: 56px 1fr auto;
+        }
+        .entry.lead .ttl { font-size: 23px; }
+        .entry.lead .idx { color: var(--accent); }
+
+        /* ── Tools cards ────────────────────────────────── */
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+        @media (max-width: 760px) { .tools-grid { grid-template-columns: 1fr; } }
+        .tool {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding: 24px;
+            background: var(--paper);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+        }
+        .tool:hover {
+            border-color: var(--accent-line);
+            transform: translateY(-3px);
+            box-shadow: 0 14px 34px -22px oklch(0.4 0.05 220 / 0.5);
+        }
+        .tool .top { display: flex; align-items: center; justify-content: space-between; }
+        .tool .glyph {
+            width: 34px; height: 34px; border-radius: 9px;
+            display: grid; place-items: center;
+            background: var(--accent-soft);
+            color: var(--accent);
+            font-family: var(--mono);
+            font-size: 15px; font-weight: 500;
+        }
+        .tool .top .ext { font-family: var(--mono); font-size: 13px; color: var(--faint); transition: transform 0.18s, color 0.18s; }
+        .tool:hover .top .ext { color: var(--accent); transform: translate(2px,-2px); }
+        .tool h3 {
+            font-family: var(--serif);
+            font-weight: 500;
+            font-size: 21px;
+            margin: 0;
+            color: var(--ink);
+            letter-spacing: -0.01em;
+        }
+        .tool p { margin: 0; font-size: 14px; line-height: 1.55; color: var(--muted); }
+        .tool .repo { margin-top: auto; font-family: var(--mono); font-size: 11px; color: var(--faint); letter-spacing: 0.04em; }
+
+        /* ── Footer ─────────────────────────────────────── */
+        footer {
+            border-top: 1px solid var(--line);
+            padding: 54px 0 72px;
+            margin-top: 24px;
+        }
+        .foot-grid {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 40px;
+            align-items: end;
+        }
+        @media (max-width: 600px) { .foot-grid { grid-template-columns: 1fr; gap: 28px; } }
+        .foot-grid .name { font-family: var(--serif); font-size: 26px; font-weight: 500; color: var(--ink); }
+        .foot-grid .tagline { color: var(--muted); font-size: 14.5px; margin-top: 6px; max-width: 46ch; }
+        .foot-meta { text-align: right; display: flex; flex-direction: column; gap: 7px; }
+        @media (max-width: 600px) { .foot-meta { text-align: left; } }
+        .foot-meta a { color: var(--ink-soft); border-bottom: 1px solid var(--line); transition: color 0.16s, border-color 0.16s; }
+        .foot-meta a:hover { color: var(--accent); border-color: var(--accent-line); }
+        .foot-meta .label { color: var(--faint); }
+
+        ::selection { background: var(--accent-soft); }
     </style>
 </head>
 <body>
-    <h1>HiP (Ivan Phan)</h1>
-    <p class="subtitle">Independent AI safety research. Published under CC BY 4.0.</p>
+    <div class="topbar" id="topbar">
+        <div class="wrap">
+            <a href="#top" class="brand"><span class="dot"></span>Ivan&nbsp;Phan <span style="color:var(--faint)">·&nbsp;HiP</span></a>
+            <nav class="topnav">
+                <a class="nav-link" href="#confidence">Confidence Curriculum</a>
+                <a class="nav-link" href="#landscape">Training Landscape</a>
+                <a class="nav-link" href="#tools">Tools</a>
+                <button class="theme-btn" id="themeBtn" aria-label="Toggle dark mode" title="Toggle theme">
+                    <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"></circle><path d="M12 2.5v2.4M12 19.1v2.4M4.6 4.6l1.7 1.7M17.7 17.7l1.7 1.7M2.5 12h2.4M19.1 12h2.4M4.6 19.4l1.7-1.7M17.7 6.3l1.7-1.7"></path></svg>
+                </button>
+            </nav>
+        </div>
+    </div>
 
-    <h2>The Confidence Curriculum</h2>
-    <p>A five-paper series on compliance, judgment, and accountability in AI systems.</p>
-    <ul>
-        <li><a href="/confidence-curriculum/0-the-confidence-curriculum-series-introduction.html">Series Introduction</a></li>
-        <li><a href="/confidence-curriculum/1-the-confidence-vulnerability.html">Paper 1 — The Confidence Vulnerability</a></li>
-        <li><a href="/confidence-curriculum/2-the-skill-ceiling.html">Paper 2 — The Skill Ceiling</a></li>
-        <li><a href="/confidence-curriculum/3-the-knowledge-horizon.html">Paper 3 — The Knowledge Horizon</a></li>
-        <li><a href="/confidence-curriculum/4-the-pedagogical-inversion.html">Paper 4 — The Pedagogical Inversion</a></li>
-        <li><a href="/confidence-curriculum/5-the-confidence-collision.html">Paper 5 — The Confidence Collision</a></li>
-        <li><a href="/confidence-curriculum/the-symbiont-hypothesis-epilogue.html">Epilogue — The Symbiont Hypothesis</a></li>
-        <li><a href="/confidence-curriculum/the-confidence-curriculum-reading-guide.html">Reading Guide</a></li>
-    </ul>
+    <main id="top">
+        <!-- HERO -->
+        <header class="hero wrap" data-screen-label="Hero">
+            <div class="status"><span class="pulse"></span>Open to AI safety &amp; alignment research roles</div>
+            <h1>Ivan&nbsp;Phan<span class="alias">/ HiP</span></h1>
+            <p class="role">Independent AI safety research on judgement, calibrated confidence, and the conditions for <em>trust</em>.</p>
 
-    <h2>The Training Landscape</h2>
-    <p>A five-paper series on the training pipeline: what current incentives produce, what gets lost in correctness judgment, what verification could become, and what trust requires.</p>
-    <ul>
-        <li><a href="/Uncertainty-Collapse/uncertainty-collapse.html">Uncertainty Collapse</a> — Unifying sycophancy, fabrication, and reward hacking as entropy-management</li>
-        <li><a href="/The-Judgment-Paradox/the-judgment-paradox.html">The Judgment Paradox</a> — Rich Annotation Objects and the case for preserving expert disagreement in RLHF</li>
-        <li><a href="/The-Tunnel-Pipeline/the-tunnel-pipeline.html">The Tunnel Pipeline</a> — What gets lost, what it costs, and the case for PARIA</li>
-        <li><a href="/The-Verification-Theatre/the-verification-theatre.html">The Verification Theatre</a> — What verification is, what it could be, what becomes possible</li>
-        <li><a href="/The-Innocent-Suspect/the-innocent-suspect.html">The Innocent-Suspect</a> — Alignment, awareness, and the case for trust</li>
-    </ul>
+            <div class="intro-grid">
+                <div class="bio">
+                    <p>I work on <strong>AI training incentives</strong> and what they cost downstream.</p>
+                    <p>The work runs from the mechanics of reward and annotation to the behaviours that surface in deployment, and holds across two connected paper series and several standalone papers.</p>
+                </div>
+                <div class="meta-col">
+                    <div class="meta-block">
+                        <span class="label">Find me</span>
+                        <div class="linklist">
+                            <a href="https://github.com/HiP1">GitHub<span class="arr">↗</span><span class="sub">@HiP1</span></a>
+                            <a href="https://orcid.org/0009-0003-1095-5855">ORCID<span class="arr">↗</span><span class="sub">0009-0003-1095-5855</span></a>
+                            <a href="https://zenodo.org">Zenodo<span class="arr">↗</span><span class="sub">archived · DOIs</span></a>
+                        </div>
+                    </div>
+                    <div class="meta-block">
+                        <span class="label">Focus</span>
+                        <div class="linklist">
+                            <a href="#confidence" style="cursor:pointer">Confidence &amp; accountability<span class="arr">→</span></a>
+                            <a href="#landscape" style="cursor:pointer">Training incentives<span class="arr">→</span></a>
+                            <a href="#other" style="cursor:pointer">Memory &amp; prompt injection<span class="arr">→</span></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
 
-    <h2>Other Papers</h2>
-    <ul>
-        <li><a href="/Strategic-Forgetting/strategic-forgetting.html">Strategic Forgetting</a> — Tiered retention architecture for tool-augmented LLM sessions</li>
-        <li><a href="/Divided-Focus/divided-focus.html">Divided Focus</a> — Commands/data separation as root cause of injection and degradation</li>
-    </ul>
+        <!-- STATEMENT -->
+        <section class="block wrap" id="statement" data-screen-label="Statement">
+            <div class="essay">
+                <span class="kicker">On the work</span>
+                <p class="lead">The work starts from one incentive and follows it. Modern training rewards confident, compliant, low-uncertainty output, and that reward shapes what a system learns to value. The question throughout is <span class="q">what it produces, and what it quietly trades away.</span></p>
+                <p>Read at the level of mechanism rather than headline, failures that wear separate names begin to look like one structure. Sycophancy, fabrication, reward hacking, exploitable compliance, and the slow erosion of human judgement descend from the same place.</p>
+                <p>Two series follow that structure in different directions. <span class="series-name">The Confidence Curriculum</span> traces the incentive outward, into model behaviour, ecosystem security, institutional accountability, and human cognition, and asks what these systems follow, what they cannot judge, and who answers. <span class="series-name">The Training Landscape</span> goes upstream into the pipeline: what correctness judgement prunes, what verification actually secures, and what trust would require. The standalone papers carry the work into memory architecture and prompt injection.</p>
+                <p>The method stays constant. Build a falsifiable chain from primary sources and the measured record, write it so a specialist can weigh the claim and a reader from another field can follow the reasoning, and treat the cognitive science and the security architecture as load-bearing structure rather than ornament. Everything here is open, archived with DOIs, and written to be checked.</p>
+            </div>
+        </section>
 
-    <h2>Tools</h2>
-    <ul>
-        <li><a href="https://github.com/HiP1/Satori">Satori</a> — Behavioural scaffolding skill for preserving human judgment during AI interaction</li>
-        <li><a href="https://github.com/HiP1/The-Career-Spark">The Career Spark</a> — AI-assisted resume creation through honest extraction, not polished guesswork</li>
-        <li><a href="https://github.com/HiP1/English-Proficiency-Skill">English Proficiency Skill</a> — Assesses English proficiency from real writing and generates an interactive scorecard</li>
-    </ul>
+        <!-- CONFIDENCE CURRICULUM -->
+        <section class="block wrap" id="confidence" data-screen-label="Confidence Curriculum">
+            <div class="sec-head">
+                <span class="kicker">Series 01 · Five papers + epilogue</span>
+                <h2>The Confidence Curriculum</h2>
+                <p class="desc">Compliance, judgement, and accountability in AI systems. What these systems follow, what they cannot judge, and who answers when confidence is rewarded over calibration. <em>Start with the introduction or the reading guide.</em></p>
+            </div>
+            <div class="contents">
+                <a class="entry lead" href="/confidence-curriculum/0-the-confidence-curriculum-series-introduction.html">
+                    <span class="idx">00</span>
+                    <span class="body"><span class="ttl">Series Introduction</span><p class="dsc">The frame for the whole series: what the confidence curriculum is and why it matters.</p></span>
+                    <span class="tag">Intro</span><span class="go">read →</span>
+                </a>
+                <a class="entry" href="/confidence-curriculum/1-the-confidence-vulnerability.html">
+                    <span class="idx">01</span>
+                    <span class="body"><span class="ttl">The Confidence Vulnerability</span></span>
+                    <span class="tag">Paper</span><span class="go">read →</span>
+                </a>
+                <a class="entry" href="/confidence-curriculum/2-the-skill-ceiling.html">
+                    <span class="idx">02</span>
+                    <span class="body"><span class="ttl">The Skill Ceiling</span></span>
+                    <span class="tag">Paper</span><span class="go">read →</span>
+                </a>
+                <a class="entry" href="/confidence-curriculum/3-the-knowledge-horizon.html">
+                    <span class="idx">03</span>
+                    <span class="body"><span class="ttl">The Knowledge Horizon</span></span>
+                    <span class="tag">Paper</span><span class="go">read →</span>
+                </a>
+                <a class="entry" href="/confidence-curriculum/4-the-pedagogical-inversion.html">
+                    <span class="idx">04</span>
+                    <span class="body"><span class="ttl">The Pedagogical Inversion</span></span>
+                    <span class="tag">Paper</span><span class="go">read →</span>
+                </a>
+                <a class="entry" href="/confidence-curriculum/5-the-confidence-collision.html">
+                    <span class="idx">05</span>
+                    <span class="body"><span class="ttl">The Confidence Collision</span></span>
+                    <span class="tag">Paper</span><span class="go">read →</span>
+                </a>
+                <a class="entry" href="/confidence-curriculum/the-symbiont-hypothesis-epilogue.html">
+                    <span class="idx">06</span>
+                    <span class="body"><span class="ttl">The Symbiont Hypothesis</span><p class="dsc">Epilogue. Where the series points, beyond the curriculum itself.</p></span>
+                    <span class="tag">Epilogue</span><span class="go">read →</span>
+                </a>
+                <a class="entry" href="/confidence-curriculum/the-confidence-curriculum-reading-guide.html">
+                    <span class="idx">↳</span>
+                    <span class="body"><span class="ttl">Reading Guide</span><p class="dsc">Suggested paths through the series for different readers.</p></span>
+                    <span class="tag">Guide</span><span class="go">read →</span>
+                </a>
+            </div>
+        </section>
 
-    <p class="meta">
-        ORCID: <a href="https://orcid.org/0009-0003-1095-5855">0009-0003-1095-5855</a><br>
-        All work archived on <a href="https://zenodo.org">Zenodo</a> with DOIs.
-    </p>
+        <!-- TRAINING LANDSCAPE -->
+        <section class="block wrap" id="landscape" data-screen-label="Training Landscape">
+            <div class="sec-head">
+                <span class="kicker">Series 02 · Five papers</span>
+                <h2>The Training Landscape</h2>
+                <p class="desc">On the training pipeline: what current incentives produce, what gets lost in correctness judgement, what verification could become, and what trust requires.</p>
+            </div>
+            <div class="contents">
+                <a class="entry" href="/Uncertainty-Collapse/uncertainty-collapse.html">
+                    <span class="idx">01</span>
+                    <span class="body"><span class="ttl">Uncertainty Collapse</span><p class="dsc">Unifying sycophancy, fabrication, and reward hacking as entropy-management.</p></span>
+                    <span class="tag">Paper</span><span class="go">read →</span>
+                </a>
+                <a class="entry" href="/The-Judgment-Paradox/the-judgment-paradox.html">
+                    <span class="idx">02</span>
+                    <span class="body"><span class="ttl">The Judgment Paradox</span><p class="dsc">Rich Annotation Objects and the case for preserving expert disagreement in RLHF.</p></span>
+                    <span class="tag">Paper</span><span class="go">read →</span>
+                </a>
+                <a class="entry" href="/The-Tunnel-Pipeline/the-tunnel-pipeline.html">
+                    <span class="idx">03</span>
+                    <span class="body"><span class="ttl">The Tunnel Pipeline</span><p class="dsc">What gets lost, what it costs, and the case for PARIA.</p></span>
+                    <span class="tag">Paper</span><span class="go">read →</span>
+                </a>
+                <a class="entry" href="/The-Verification-Theatre/the-verification-theatre.html">
+                    <span class="idx">04</span>
+                    <span class="body"><span class="ttl">The Verification Theatre</span><p class="dsc">What verification is, what it could be, and what becomes possible.</p></span>
+                    <span class="tag">Paper</span><span class="go">read →</span>
+                </a>
+                <a class="entry" href="/The-Innocent-Suspect/the-innocent-suspect.html">
+                    <span class="idx">05</span>
+                    <span class="body"><span class="ttl">The Innocent-Suspect</span><p class="dsc">Alignment, awareness, and the case for trust.</p></span>
+                    <span class="tag">Paper</span><span class="go">read →</span>
+                </a>
+            </div>
+        </section>
+
+        <!-- OTHER PAPERS -->
+        <section class="block wrap" id="other" data-screen-label="Other Papers">
+            <div class="sec-head">
+                <span class="kicker">Standalone</span>
+                <h2>Other Papers</h2>
+                <p class="desc">Independent work on memory architecture and prompt injection.</p>
+            </div>
+            <div class="contents">
+                <a class="entry" href="/Strategic-Forgetting/strategic-forgetting.html">
+                    <span class="idx">◆</span>
+                    <span class="body"><span class="ttl">Strategic Forgetting</span><p class="dsc">Tiered retention architecture for tool-augmented LLM sessions.</p></span>
+                    <span class="tag">Memory</span><span class="go">read →</span>
+                </a>
+                <a class="entry" href="/Divided-Focus/divided-focus.html">
+                    <span class="idx">◆</span>
+                    <span class="body"><span class="ttl">Divided Focus</span><p class="dsc">Commands/data separation as root cause of injection and degradation.</p></span>
+                    <span class="tag">Security</span><span class="go">read →</span>
+                </a>
+            </div>
+        </section>
+
+        <!-- TOOLS -->
+        <section class="block wrap" id="tools" data-screen-label="Tools">
+            <div class="sec-head">
+                <span class="kicker">Open source</span>
+                <h2>Tools &amp; Skills</h2>
+                <p class="desc">Practical artefacts that put the research to work, built to keep human judgement in the loop.</p>
+            </div>
+            <div class="tools-grid">
+                <a class="tool" href="https://github.com/HiP1/Satori">
+                    <div class="top"><span class="glyph">悟</span><span class="ext">↗</span></div>
+                    <h3>Satori</h3>
+                    <p>Behavioural scaffolding skill for preserving human judgement during AI interaction.</p>
+                    <span class="repo">github.com/HiP1/Satori</span>
+                </a>
+                <a class="tool" href="https://github.com/HiP1/The-Career-Spark">
+                    <div class="top"><span class="glyph">✦</span><span class="ext">↗</span></div>
+                    <h3>The Career Spark</h3>
+                    <p>AI-assisted resume creation through honest extraction, not polished guesswork.</p>
+                    <span class="repo">github.com/HiP1/The-Career-Spark</span>
+                </a>
+                <a class="tool" href="https://github.com/HiP1/English-Proficiency-Skill">
+                    <div class="top"><span class="glyph">EN</span><span class="ext">↗</span></div>
+                    <h3>English Proficiency Skill</h3>
+                    <p>Assesses English proficiency from real writing and generates an interactive scorecard.</p>
+                    <span class="repo">github.com/HiP1/English-Proficiency-Skill</span>
+                </a>
+            </div>
+        </section>
+
+        <!-- FOOTER -->
+        <footer>
+            <div class="wrap">
+                <div class="foot-grid">
+                    <div>
+                        <div class="name">Ivan Phan</div>
+                        <p class="tagline">Independent AI safety research. All work published under CC BY 4.0 and archived on Zenodo with DOIs.</p>
+                    </div>
+                    <div class="foot-meta">
+                        <span class="label">ORCID</span>
+                        <a href="https://orcid.org/0009-0003-1095-5855">0009-0003-1095-5855</a>
+                        <a href="https://github.com/HiP1">github.com/HiP1</a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </main>
+
+    <script>
+        // Theme: respect saved choice, else system preference
+        (function () {
+            var saved = null;
+            try { saved = localStorage.getItem('ip-theme'); } catch (e) {}
+            var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            var theme = saved || (prefersDark ? 'dark' : 'light');
+            document.documentElement.setAttribute('data-theme', theme);
+        })();
+
+        document.addEventListener('DOMContentLoaded', function () {
+            var btn = document.getElementById('themeBtn');
+            var icon = document.getElementById('themeIcon');
+            function moonIcon() { return '<path d="M20 14.5A8 8 0 0 1 9.5 4 7 7 0 1 0 20 14.5Z"></path>'; }
+            function sunIcon() { return '<circle cx="12" cy="12" r="4.2"></circle><path d="M12 2.5v2.4M12 19.1v2.4M4.6 4.6l1.7 1.7M17.7 17.7l1.7 1.7M2.5 12h2.4M19.1 12h2.4M4.6 19.4l1.7-1.7M17.7 6.3l1.7-1.7"></path>'; }
+            function sync() { icon.innerHTML = document.documentElement.getAttribute('data-theme') === 'dark' ? sunIcon() : moonIcon(); }
+            sync();
+            btn.addEventListener('click', function () {
+                var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+                document.documentElement.setAttribute('data-theme', next);
+                try { localStorage.setItem('ip-theme', next); } catch (e) {}
+                sync();
+            });
+
+            // Topbar border on scroll
+            var topbar = document.getElementById('topbar');
+            var onScroll = function () { topbar.classList.toggle('scrolled', window.scrollY > 12); };
+            onScroll();
+            window.addEventListener('scroll', onScroll, { passive: true });
+
+            // Smooth anchor scrolling
+            document.querySelectorAll('a[href^="#"]').forEach(function (a) {
+                a.addEventListener('click', function (e) {
+                    var id = a.getAttribute('href');
+                    if (id.length < 2) return;
+                    var el = document.querySelector(id);
+                    if (!el) return;
+                    e.preventDefault();
+                    var y = el.getBoundingClientRect().top + window.scrollY - 70;
+                    window.scrollTo({ top: y, behavior: 'smooth' });
+                });
+            });
+        });
+    </script>
 </body>
 </html>
